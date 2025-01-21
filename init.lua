@@ -622,6 +622,7 @@ require('lazy').setup({
         gopls = {},
         golangci_lint_ls = {},
         pyright = {},
+        ruff = {},
         terraformls = {},
         tflint = {},
         -- rust_analyzer = {},
