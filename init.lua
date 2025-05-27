@@ -151,10 +151,13 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.inccommand = 'split'
 
 -- Show which line your cursor is on
-vim.opt.cursorline = true
+vim.opt.cursorline = false
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.opt.scrolloff = 10
+vim.opt.scrolloff = 12
+
+-- Tabs are shown 4 characters wide
+vim.opt.tabstop = 4
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
@@ -203,6 +206,18 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd('BufReadPost', {
+  desc = 'Remember last cursor position for opened files',
+  group = vim.api.nvim_create_augroup('kickstart-remember-cursor', { clear = true }),
+  callback = function()
+    -- Only jump if the file was not opened at a specific line (e.g., via +line_number)
+    -- and if the last position is valid (not 0,0)
+    if vim.fn.line '\'"' > 1 or vim.fn.col '\'"' > 1 then
+      vim.cmd 'normal! g`"'
+    end
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
@@ -216,6 +231,12 @@ end ---@diagnostic disable-next-line: undefined-field
 vim.opt.rtp:prepend(lazypath)
 
 vim.cmd.colorscheme 'industry'
+
+vim.filetype.add {
+  extension = {
+    tftpl = 'terraform',
+  },
+}
 
 -- [[ Configure and install plugins ]]
 --
@@ -592,14 +613,17 @@ require('lazy').setup({
       })
 
       -- Change diagnostic symbols in the sign column (gutter)
-      -- if vim.g.have_nerd_font then
-      --   local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
-      --   local diagnostic_signs = {}
-      --   for type, icon in pairs(signs) do
-      --     diagnostic_signs[vim.diagnostic.severity[type]] = icon
-      --   end
-      --   vim.diagnostic.config { signs = { text = diagnostic_signs } }
-      -- end
+      if vim.g.have_nerd_font then
+        local signs = { ERROR = '', WARN = '', INFO = '', HINT = '' }
+        local diagnostic_signs = {}
+        for type, icon in pairs(signs) do
+          diagnostic_signs[vim.diagnostic.severity[type]] = icon
+        end
+        vim.diagnostic.config {
+          signs = { text = diagnostic_signs },
+          virtual_text = true,
+        }
+      end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
@@ -950,6 +974,23 @@ require('lazy').setup({
     --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  },
+
+  {
+    'kiddos/gemini.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+    opts = {
+      model_config = {
+        completion_delay = 1000,
+        model_id = 'gemini-2.5-flash-preview-05-20',
+        temperature = 0.2,
+        top_k = 40,
+        max_output_tokens = 8192,
+        response_mime_type = 'text/plain',
+      },
+    },
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
