@@ -93,6 +93,8 @@ vim.g.maplocalleader = ' '
 -- Set to true if you have a Nerd Font installed and selected in the terminal
 vim.g.have_nerd_font = true
 
+vim.g.python3_host_prog = '~/.config/nvim/.venv/bin/python3'
+
 -- [[ Setting options ]]
 -- See `:help vim.opt`
 -- NOTE: You can change these options as you wish!
@@ -698,6 +700,7 @@ require('lazy').setup({
         'yamllint',
         'yamlfix',
         'markdownlint',
+        'groovy-language-server',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
