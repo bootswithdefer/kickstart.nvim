@@ -161,7 +161,7 @@ vim.o.inccommand = 'split'
 vim.o.cursorline = false
 
 -- Minimal number of screen lines to keep above and below the cursor.
-vim.o.scrolloff = 12
+vim.o.scrolloff = 10
 
 -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s)
@@ -516,10 +516,7 @@ require('lazy').setup({
       { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by blink.cmp
-      {
-        'saghen/blink.cmp',
-        build = 'cargo +nightly build --release',
-      },
+      'saghen/blink.cmp',
     },
     config = function()
       -- Brief aside: **What is LSP?**
