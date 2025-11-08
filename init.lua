@@ -663,10 +663,10 @@ require('lazy').setup({
         underline = { severity = vim.diagnostic.severity.ERROR },
         signs = vim.g.have_nerd_font and {
           text = {
-            [vim.diagnostic.severity.ERROR] = '<U+F015A> ',
-            [vim.diagnostic.severity.WARN] = '<U+F002A> ',
-            [vim.diagnostic.severity.INFO] = '<U+F02FD> ',
-            [vim.diagnostic.severity.HINT] = '<U+F0336> ',
+            [vim.diagnostic.severity.ERROR] = '󰅚 ',
+            [vim.diagnostic.severity.WARN] = '󰀪 ',
+            [vim.diagnostic.severity.INFO] = '󰋽 ',
+            [vim.diagnostic.severity.HINT] = '󰌶 ',
           },
         } or {},
         virtual_text = {
