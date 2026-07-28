@@ -99,7 +99,14 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  -- LOCAL: nerd font enabled
+  vim.g.have_nerd_font = true
+
+  -- LOCAL: disable unused language providers (no remote plugins in use)
+  vim.g.loaded_python3_provider = 0
+  vim.g.loaded_node_provider = 0
+  vim.g.loaded_perl_provider = 0
+  vim.g.loaded_ruby_provider = 0
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -162,7 +169,8 @@ do
   vim.o.inccommand = 'split'
 
   -- Show which line your cursor is on
-  vim.o.cursorline = true
+  -- LOCAL: cursorline disabled
+  vim.o.cursorline = false
 
   -- Minimal number of screen lines to keep above and below the cursor.
   vim.o.scrolloff = 10
@@ -171,6 +179,10 @@ do
   -- instead raise a dialog asking if you wish to save the current file(s)
   -- See `:help 'confirm'`
   vim.o.confirm = true
+
+  -- LOCAL: 4-wide tabs, expand to spaces
+  vim.o.tabstop = 4
+  vim.o.expandtab = true
 end
 
 -- ============================================================
@@ -382,18 +394,8 @@ do
   -- change the command under that to load whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  vim.pack.add { gh 'folke/tokyonight.nvim' }
-  ---@diagnostic disable-next-line: missing-fields
-  require('tokyonight').setup {
-    styles = {
-      comments = { italic = false }, -- Disable italics in comments
-    },
-  }
-
-  -- Load the colorscheme here.
-  -- Like many other themes, this one has different styles, and you could load
-  -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  -- LOCAL: use built-in industry colorscheme
+  vim.cmd.colorscheme 'industry'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -431,6 +433,9 @@ do
   -- - sd'   - [S]urround [D]elete [']quotes
   -- - sr)'  - [S]urround [R]eplace [)] [']
   require('mini.surround').setup()
+
+  -- LOCAL: restore cursor position when reopening files
+  require('mini.misc').setup_restore_cursor()
 
   -- Simple and easy statusline.
   --  You could remove this setup call if you don't like it,
@@ -696,6 +701,18 @@ do
     -- gopls = {},
     -- pyright = {},
     -- rust_analyzer = {},
+
+    -- LOCAL: enabled LSP servers
+    gopls = {},
+    golangci_lint_ls = {},
+    pyright = {},
+    ruff = {
+      -- Let pyright own hover; ruff's hover is minimal and would duplicate it.
+      on_attach = function(client) client.server_capabilities.hoverProvider = false end,
+    },
+    tofu_ls = {},
+    tflint = {},
+    yamlls = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
     --    https://github.com/pmizio/typescript-tools.nvim
@@ -766,6 +783,16 @@ do
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
     -- You can add other tools here that you want Mason to install
+    -- LOCAL: additional formatters and linters
+    'prettier',
+    'prettierd',
+    'yamllint',
+    'yamlfix',
+    'markdownlint',
+    'groovy-language-server',
+    'taplo',
+    'shfmt',
+    'xmlformatter',
   })
 
   require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -790,6 +817,18 @@ do
       local enabled_filetypes = {
         -- lua = true,
         -- python = true,
+        -- LOCAL: format-on-save enabled filetypes
+        go = true,
+        hcl = true,
+        json = true,
+        lua = true,
+        python = true,
+        sh = true,
+        terraform = true,
+        tofu = true,
+        toml = true,
+        xml = true,
+        yaml = true,
       }
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
@@ -803,6 +842,19 @@ do
     -- You can also specify external formatters in here.
     formatters_by_ft = {
       -- rust = { 'rustfmt' },
+      -- LOCAL: configured formatters
+      go = { 'gofmt', 'goimports' },
+      hcl = { 'tofu_fmt' },
+      json = { 'jq' },
+      lua = { 'stylua' },
+      markdown = { 'markdownlint' },
+      python = { 'ruff_format', 'ruff_fix' },
+      sh = { 'shfmt' },
+      terraform = { 'tofu_fmt' },
+      tofu = { 'tofu_fmt' },
+      toml = { 'taplo' },
+      xml = { 'xmlformatter' },
+      yaml = { 'prettierd' },
       -- Conform can also run multiple formatters sequentially
       -- python = { "isort", "black" },
       --
@@ -889,7 +941,8 @@ do
     -- the rust implementation via `'prefer_rust_with_warning'`
     --
     -- See `:help blink-cmp-config-fuzzy` for more information
-    fuzzy = { implementation = 'lua' },
+    -- LOCAL: use rust fuzzy implementation for performance
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
@@ -910,7 +963,34 @@ do
   vim.pack.add { { src = gh 'nvim-treesitter/nvim-treesitter', version = 'main' } }
 
   -- Ensure basic parsers are installed
-  local parsers = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' }
+  -- LOCAL: extended parser list
+  local parsers = {
+    'bash',
+    'c',
+    'diff',
+    'fish',
+    'go',
+    'gomod',
+    'gosum',
+    'gotmpl',
+    'groovy',
+    'hcl',
+    'html',
+    'jq',
+    'json',
+    'lua',
+    'luadoc',
+    'markdown',
+    'markdown_inline',
+    'python',
+    'query',
+    'sql',
+    'terraform',
+    'toml',
+    'vim',
+    'vimdoc',
+    'yaml',
+  }
   require('nvim-treesitter').install(parsers)
 
   ---@param buf integer
@@ -974,7 +1054,8 @@ do
   --
   -- require 'kickstart.plugins.debug'
   -- require 'kickstart.plugins.indent_line'
-  -- require 'kickstart.plugins.lint'
+  -- LOCAL: lint plugin enabled
+  require 'kickstart.plugins.lint'
   -- require 'kickstart.plugins.autopairs'
   -- require 'kickstart.plugins.neo-tree'
   -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
@@ -983,6 +1064,15 @@ do
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   -- require 'custom.plugins'
+
+  -- LOCAL: custom filetype mappings
+  vim.filetype.add {
+    extension = {
+      tftpl = 'terraform',
+      gotmpl = 'gotmpl',
+      tmpl = 'gotmpl',
+    },
+  }
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`

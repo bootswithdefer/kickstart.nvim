@@ -1,0 +1,14 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^\.github/pull_request_template\.md$
+      - id: end-of-file-fixer
+        exclude: ^\.github/pull_request_template\.md$
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/JohnnyMorganz/StyLua
+    rev: 5ae6e7a55748414b4be30a832afd895014c65352  # frozen: v2.5.2
+    hooks:
+      - id: stylua
